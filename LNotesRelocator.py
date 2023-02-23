@@ -1,38 +1,59 @@
-import psutil
-import subprocess
+print("Made by Bailey Shelhorse")
+print("""
+       (づ  ◕‿◕ )づ  Let me do this for you!
+      """)
+print("Move notes ID quickly without browsing through the folder.")
+print("  ")
 
-# get system information
-cpu_count = psutil.cpu_count()
-cpu_freq = psutil.cpu_freq()
-memory = psutil.virtual_memory()
-disk_usage = psutil.disk_usage('/')
+import os
+import shutil
+//Replace with IP
+folder_path = r"\\XXX.XX.XX.XX\IDs"
 
-# print system information
-print(f"CPU count: {cpu_count}")
-print(f"CPU frequency: {cpu_freq.current:.1f} MHz")
-print(f"Memory: {memory.total/(1024**2):.2f} MB")
-print(f"Disk usage: {disk_usage.used/(1024**3):.2f} GB / {disk_usage.total/(1024**3):.2f} GB ({disk_usage.percent}%)")
+while True:
+    search_name = input("Enter the name to search (or 'q' to quit): ")
+    if search_name == 'q':
+        break
 
-# get process information
-processes = []
-for proc in psutil.process_iter(['pid', 'name', 'username']):
-    try:
-        pinfo = proc.as_dict(attrs=['pid', 'name', 'username'])
-    except psutil.NoSuchProcess:
-        pass
+    matches = []
+
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if search_name in file:
+                matches.append(os.path.join(root, file))
+
+    if matches:
+        print(f"Found {len(matches)} matches for '{search_name}':")
+        for i, match in enumerate(matches):
+            print(f"{i + 1}. {match}")
+        
+        selection = input(f"Select a match to copy (1-{len(matches)}) or press Enter to search again: ")
+        if selection:
+            try:
+                selection_index = int(selection) - 1
+                if 0 <= selection_index < len(matches):
+                    selected_match = matches[selection_index]
+
+                    output_folder = input("Enter the output directory to copy the selected match to: ")
+                    output_folder_path = '\\\\' + output_folder + '\\c$\\Lotus\\Notes\\Data'
+
+
+
+
+
+                    print(f"Selected file will be copied to: {os.path.join(output_folder_path, os.path.basename(selected_match))}")
+                    input("Press Enter to continue or Ctrl+C to cancel.")
+
+                    try:
+                        shutil.copy(selected_match, os.path.join(output_folder_path, os.path.basename(selected_match)))
+                        print(f"Successfully copied {selected_match} to {os.path.join(output_folder_path, os.path.basename(selected_match))}.")
+                    except (shutil.Error, FileNotFoundError) as e:
+                        print(f"Error: {e}")
+                else:
+                    print("Invalid selection.")
+            except ValueError:
+                print("Invalid selection.")
     else:
-        processes.append(pinfo)
-
-# print process information
-print("\nRunning processes:")
-for process in processes:
-    print(f"PID: {process['pid']}, Name: {process['name']}, User: {process['username']}")
-
-# Run the systeminfo command and capture its output
-result = subprocess.run(['systeminfo'], capture_output=True, text=True)
-
-# Print the output
-print(result.stdout)
-
-# Wait for user input before exiting
+        print(f"No matches found for '{search_name}'.")
+    
 input("Press Enter to exit.")
